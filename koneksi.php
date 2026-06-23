@@ -1,5 +1,5 @@
 <?php
-// koneksi/database.php
+// koneksi.php
 class Database {
     private $host = "localhost";
     private $db_name = "DB_UAS_PBO_TRPL1B_MuhammadFadhelAqila";
