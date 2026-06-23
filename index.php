@@ -10,10 +10,10 @@ require_once 'model/KaryawanMagang.php';
 $database = new Database();
 $db = $database->getConnection();
 
-// 2. Mengambil kata kunci pencarian jika ada input dari user
+// 2. Mengambil kata kunci pencarian
 $kataKunci = isset($_GET['cari']) ? $_GET['cari'] : '';
 
-// 3. Mengambil data terpisah/berkelompok lewat subclass masing-masing (Sesuai Perintah Tahap 6)
+// 3. Mengambil data berkelompok
 $dataTetap   = KaryawanTetap::ambilDataBerdasarkanJenis($db, $kataKunci);
 $dataKontrak = KaryawanKontrak::ambilDataBerdasarkanJenis($db, $kataKunci);
 $dataMagang  = KaryawanMagang::ambilDataBerdasarkanJenis($db, $kataKunci);
@@ -36,6 +36,7 @@ if (!empty($kataKunci)) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Penggajian Karyawan - UAS PBO</title>
+    <!-- Google Fonts, Bootstrap 5 & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
@@ -62,7 +63,7 @@ if (!empty($kataKunci)) {
             min-height: 100vh;
         }
 
-        /* SIDEBAR (MENU SAMPING STATIS PREMIUM) */
+        /* SIDEBAR (MENU SAMPING STATIS) */
         .sidebar {
             width: 280px;
             background-color: var(--bg-sidebar);
@@ -155,34 +156,48 @@ if (!empty($kataKunci)) {
             margin-top: 30px;
         }
 
-        /* STYLING TABEL KONTRAST TINGGI (CERAH) */
+        /* STYLING TABEL */
         .table-premium th {
             background-color: #0f172a !important;
             color: #ffffff !important;
             font-weight: 600;
             border-bottom: 2px solid var(--border-custom);
         }
-
-        .table-premium td {
-            color: #e2e8f0 !important; /* Membuat teks data umum sangat terang */
-        }
-
+        .table-premium td { color: #e2e8f0 !important; }
         .text-id { color: #3b82f6 !important; font-weight: 600; }
         .text-nama { color: #ffffff !important; font-weight: 600; }
-        .text-dept { color: #cbd5e1 !important; }
-        .text-spesifik-info { color: #f8fafc !important; font-size: 0.85rem; line-height: 1.4; }
 
-        /* BADGE KAPSUL STATUS JABATAN */
-        .badge-karyawan { padding: 6px 12px; font-weight: 600; border-radius: 6px; display: inline-block; }
+        /* BADGE STATUS */
+        .badge-karyawan { padding: 4px 10px; font-weight: 600; border-radius: 6px; font-size: 0.75rem; display: inline-block; }
         .badge-tetap { background-color: rgba(59, 130, 246, 0.15); color: #3b82f6; border: 1px solid #3b82f6; }
         .badge-kontrak { background-color: rgba(234, 179, 8, 0.15); color: #eab308; border: 1px solid #eab308; }
         .badge-magang { background-color: rgba(236, 72, 153, 0.15); color: #ec4899; border: 1px solid #ec4899; }
+
+        /* TAMPILAN SLIP GAJI KOTAK-KOTAK (CARD) */
+        .slip-box {
+            background: #ffffff;
+            color: #0f172a;
+            border-radius: 12px;
+            border: 1px solid rgba(0,0,0,0.08);
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .slip-box:hover {
+            transform: translateY(-4px);
+        }
+        .slip-header {
+            border-bottom: 2px dashed #cbd5e1;
+            padding-bottom: 12px;
+            margin-bottom: 14px;
+        }
     </style>
 </head>
 <body>
 
 <div class="wrapper">
     
+    <!-- SIDEBAR NAVIGATION MENU (TAMBAHAN MENU SLIP GAJI DI KIRI) -->
     <div class="sidebar">
         <div class="sidebar-brand">
             <i class="bi bi-building-gear me-2"></i><span>HRIS Payroll</span>
@@ -202,6 +217,11 @@ if (!empty($kataKunci)) {
                 <button class="nav-link <?php echo ($tabAktif == 'magang') ? 'active' : ''; ?>" id="v-pills-magang-tab" data-bs-toggle="pill" data-bs-target="#v-pills-magang" type="button" role="tab">
                     <i class="bi bi-mortarboard"></i><span>Karyawan Magang</span>
                 </button>
+                
+                <!-- MENU BARU: SLIP GAJI KARYAWAN -->
+                <button class="nav-link text-warning border border-warning border-opacity-10 mt-3" id="v-pills-slip-tab" data-bs-toggle="pill" data-bs-target="#v-pills-slip" type="button" role="tab">
+                    <i class="bi bi-file-earmark-pdf-fill text-warning"></i><span>Slip Gaji</span>
+                </button>
             </div>
         </div>
         
@@ -210,8 +230,10 @@ if (!empty($kataKunci)) {
         </div>
     </div>
 
+    <!-- MAIN CONTENT AREA RIGHT -->
     <div class="main-content">
         
+        <!-- HEADER & SEARCH BAR -->
         <div class="row align-items-center g-3">
             <div class="col-md-6">
                 <h2 class="fw-bold m-0 text-white">Sistem Slip Gaji Terintegrasi</h2>
@@ -231,6 +253,7 @@ if (!empty($kataKunci)) {
             </div>
         </div>
 
+        <!-- ISI PANEL KONTEN KANAN -->
         <div class="tab-content" id="v-pills-tabContent">
             
             <div class="tab-pane fade <?php echo ($tabAktif == 'all') ? 'show active' : ''; ?>" id="v-pills-all" role="tabpanel">
@@ -249,18 +272,69 @@ if (!empty($kataKunci)) {
                 <?php cetakMasterTabelKaryawan($dataMagang, "Kategori Ketenagakerjaan: Magang"); ?>
             </div>
 
+            <!-- PANEL BARU: TAMPILAN SLIP GAJI KOTAK-KOTAK (GRID CARD) -->
+            <div class="tab-pane fade" id="v-pills-slip" role="tabpanel">
+                <div class="glass-panel">
+                    <h4 class="mb-4 fw-bold text-white"><i class="bi bi-grid-3x3-gap-fill text-warning me-2"></i>Daftar Kotak Slip Gaji Karyawan</h4>
+                    
+                    <div class="row g-4">
+                        <?php if (count($semuaKaryawan) > 0): ?>
+                            <?php foreach ($semuaKaryawan as $karyawan): 
+                                $classObjek = get_class($karyawan);
+                                $badge = "badge-tetap";
+                                if ($classObjek == 'KaryawanKontrak') $badge = "badge-kontrak";
+                                if ($classObjek == 'KaryawanMagang') $badge = "badge-magang";
+                            ?>
+                                <!-- KOTAK-KOTAK SLIP GAJI PER KARYAWAN -->
+                                <div class="col-xl-4 col-md-6">
+                                    <div class="slip-box">
+                                        <div class="slip-header d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <h6 class="fw-bold m-0 text-dark"><?php echo $karyawan->getNamaKaryawan(); ?></h6>
+                                                <small class="text-muted">#ID: <?php echo $karyawan->getIdKaryawan(); ?> | <?php echo $karyawan->getDepartemen(); ?></small>
+                                            </div>
+                                            <span class="badge-karyawan <?php echo $badge; ?>"><?php echo $karyawan->getJenisKaryawan(); ?></span>
+                                        </div>
+                                        
+                                        <div class="slip-body small text-secondary">
+                                            <div class="d-flex justify-content-between mb-1">
+                                                <span>Kehadiran Kerja:</span>
+                                                <span class="text-dark fw-medium"><?php echo $karyawan->getHariKerjaMasuk(); ?> Hari</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span>Plafon Harian:</span>
+                                                <span class="text-dark fw-medium">Rp <?php echo number_format($karyawan->getGajiDasarPerHari(), 0, ',', '.'); ?></span>
+                                            </div>
+                                            <div class="bg-light p-2 rounded mb-3" style="font-size: 11px; border-left: 3px solid #3b82f6;">
+                                                <i class="bi bi-info-circle-fill me-1 text-primary"></i><?php echo $karyawan->tampilkanProfilKaryawan(); ?>
+                                            </div>
+                                            
+                                            <div class="border-top pt-2 d-flex justify-content-between align-items-center">
+                                                <span class="fw-bold text-dark small">GAJI BERSIH:</span>
+                                                <span class="fw-bold text-success fs-5">Rp <?php echo number_format($karyawan->hitungGajiBersih(), 0, ',', '.'); ?></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <div class="col-12 text-center text-danger py-4">Data karyawan tidak ditemukan.</div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
     </div>
 </div>
 
 <?php
-// FUNGSI UTAMA RENDER TABEL DATA POLIMORFISME
+// FUNGSI UTAMA RENDER TABEL UTAMA
 function cetakMasterTabelKaryawan($arrayKaryawan, $judulTabel) {
     ?>
     <div class="glass-panel shadow-lg">
         <h4 class="mb-4 fw-bold text-white"><i class="bi bi-layers-half text-primary me-2"></i><?php echo $judulTabel; ?></h4>
-        
         <div class="table-responsive">
             <table class="table table-dark table-hover align-middle border-0 table-premium">
                 <thead>
@@ -270,8 +344,8 @@ function cetakMasterTabelKaryawan($arrayKaryawan, $judulTabel) {
                         <th class="py-3">DEPARTEMEN</th>
                         <th class="py-3 text-center">HARI KERJA</th>
                         <th class="py-3">GAJI/HARI</th>
-                        <th class="py-3 text-success">GAJI BERSIH (POLIMORFISME)</th>
-                        <th class="py-3">SPESIFIKASI JABATAN & ATRIBUT ANAK</th>
+                        <th class="py-3 text-success">GAJI BERSIH</th>
+                        <th class="py-3">SPESIFIKASI JABATAN</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -284,33 +358,19 @@ function cetakMasterTabelKaryawan($arrayKaryawan, $judulTabel) {
                         ?>
                             <tr>
                                 <td class="text-id">#<?php echo $karyawan->getIdKaryawan(); ?></td>
-                                
                                 <td class="text-nama"><i class="bi bi-person-circle text-primary text-opacity-70 me-2"></i><?php echo $karyawan->getNamaKaryawan(); ?></td>
-                                
                                 <td class="text-dept"><?php echo $karyawan->getDepartemen(); ?></td>
-                                
-                                <td class="text-center">
-                                    <span class="badge bg-light text-dark fw-bold px-2 py-1"><?php echo $karyawan->getHariKerjaMasuk(); ?> Hari</span>
-                                </td>
-                                
+                                <td class="text-center"><span class="badge bg-light text-dark fw-bold px-2 py-1"><?php echo $karyawan->getHariKerjaMasuk(); ?> Hari</span></td>
                                 <td class="text-white fw-medium">Rp <?php echo number_format($karyawan->getGajiDasarPerHari(), 0, ',', '.'); ?></td>
-                                
                                 <td class="fw-bold text-success fs-6">Rp <?php echo number_format($karyawan->hitungGajiBersih(), 0, ',', '.'); ?></td>
-                                
                                 <td>
                                     <span class="badge-karyawan <?php echo $badgeClass; ?> mb-1 small"><?php echo $karyawan->getJenisKaryawan(); ?></span>
-                                    <div class="text-spesifik-info mt-1">
-                                        <i class="bi bi-info-circle text-warning me-1"></i><?php echo $karyawan->tampilkanProfilKaryawan(); ?>
-                                    </div>
+                                    <div class="text-muted mt-1" style="font-size: 0.8rem;"><i class="bi bi-info-circle me-1 text-warning"></i><?php echo $karyawan->tampilkanProfilKaryawan(); ?></div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
-                        <tr>
-                            <td colspan="7" class="text-center text-danger py-5">
-                                <i class="bi bi-folder-x fs-1 d-block mb-2"></i>Data karyawan tidak ditemukan.
-                            </td>
-                        </tr>
+                        <tr><td colspan="7" class="text-center text-danger py-4">Data karyawan tidak ditemukan.</td></tr>
                     <?php endif; ?>
                 </tbody>
             </table>
