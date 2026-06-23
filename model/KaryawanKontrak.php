@@ -20,11 +20,11 @@ class KaryawanKontrak extends Karyawan {
 
     // Implementasi sementara metode abstrak dari parent class
     public function hitungGajiBersih() {
-        return 0; // Akan diisi di Tahap 5
+        return $this->gajiDasarPerHari * $this->hariKerjaMasuk;
     }
 
     public function tampilkanProfilKaryawan() {
-        return "Karyawan Kontrak via agensi " . $this->agensiPenyalur; // Akan dioptimalkan di Tahap 5
+        return "Kontrak: " . $this->durasiKontrakBulan . " Bulan (via " . $this->agensiPenyalur . ")";
     }
 
     // Metode query spesifik bersyarat (WHERE jenis_karyawan = 'Kontrak') sesuai ketentuan Tahap 4

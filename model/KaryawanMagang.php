@@ -18,11 +18,11 @@ class KaryawanMagang extends Karyawan {
     public function getSertifikatKampusMerdeka() { return $this->sertifikatKampusMerdeka; }
 
     public function hitungGajiBersih() {
-        return 0; // Akan diisi di Tahap 5
+        return ($this->gajiDasarPerHari * $this->hariKerjaMasuk) * 0.80;
     }
 
     public function tampilkanProfilKaryawan() {
-        return "Peserta Magang bersertifikat " . $this->sertifikatKampusMerdeka;
+        return "Magang: " . $this->sertifikatKampusMerdeka . " (Uang Saku Bulanan: Rp " . number_format($this->uangSakuBulanan, 0, ',', '.') . ")";
     }
 
     // Metode query spesifik bersyarat (WHERE jenis_karyawan = 'Magang') sesuai ketentuan Tahap 4

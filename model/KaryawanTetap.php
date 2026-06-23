@@ -18,11 +18,11 @@ class KaryawanTetap extends Karyawan {
     public function getOpsiSahamId() { return $this->opsiSahamId; }
 
     public function hitungGajiBersih() {
-        return 0; // Akan diisi di Tahap 5
+        return ($this->gajiDasarPerHari * $this->hariKerjaMasuk) + $this->tunjanganKesehatan;
     }
 
     public function tampilkanProfilKaryawan() {
-        return "Karyawan Tetap dengan ID Saham " . $this->opsiSahamId;
+        return "Tetap: Tunjangan Kesehatan Rp " . number_format($this->tunjanganKesehatan, 0, ',', '.') . " | ID Saham: " . $this->opsiSahamId;
     }
 
     // Metode query spesifik bersyarat (WHERE jenis_karyawan = 'Tetap') sesuai ketentuan Tahap 4
